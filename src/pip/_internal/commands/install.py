@@ -90,6 +90,7 @@ class InstallCommand(RequirementCommand):
         self.cmd_opts.add_option(cmdoptions.requirements_from_scripts())
         self.cmd_opts.add_option(cmdoptions.no_deps())
         self.cmd_opts.add_option(cmdoptions.only_deps())
+        self.cmd_opts.add_option(cmdoptions.only_build_deps())
 
         self.cmd_opts.add_option(cmdoptions.editable())
         self.cmd_opts.add_option(
@@ -413,6 +414,10 @@ class InstallCommand(RequirementCommand):
                         "Would install %s",
                         " ".join("-".join(item) for item in would_install_items),
                     )
+                return SUCCESS
+
+            if options.only_build_dependencies:
+                write_output("Successfully downloaded build dependencies")
                 return SUCCESS
 
             # If there is any more preparation to do for the actual installation, do

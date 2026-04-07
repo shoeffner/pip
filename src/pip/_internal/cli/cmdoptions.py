@@ -65,12 +65,21 @@ def make_option_group(group: dict[str, Any], parser: ConfigOptionParser) -> Opti
 
 
 def check_deps_opts_do_not_conflict(options: Values) -> None:
-    """Function for determining if --no-deps and --only-deps are both specified.
+    """Function for determining if more than one of --no-deps, --only-deps, or
+    --only-build-deps are specified.
 
     :param options: The OptionParser options.
     """
-    if options.ignore_dependencies and options.only_dependencies:
-        raise CommandError("Cannot use '--no-deps' in combination with '--only-deps'")
+    dependency_options = (
+        options.ignore_dependencies,
+        options.only_dependencies,
+        options.only_build_dependencies,
+    )
+    if sum(dependency_options) > 1:
+        raise CommandError(
+            "Cannot combine '--no-deps', '--only-deps' and '--only-build-deps', "
+            "specify only one of them."
+        )
 
 
 def check_dist_restriction(options: Values, check_target: bool = False) -> None:
@@ -950,7 +959,10 @@ no_deps: Callable[..., Option] = partial(
     dest="ignore_dependencies",
     action="store_true",
     default=False,
-    help="Don't install package dependencies.",
+    help=(
+        "Don't install package dependencies. Cannot be used in combination "
+        "with --only-deps or --only-build-deps."
+    ),
 )
 
 
@@ -966,7 +978,21 @@ only_deps: Callable[..., Option] = partial(
         "If you specify an optional dependency group such as [doc], "
         "the project dependencies and selected optional dependencies "
         "will be installed. Cannot be used in combination with "
-        "--no-deps."
+        "--no-deps or --only-build-deps."
+    ),
+)
+
+
+only_build_deps: Callable[..., Option] = partial(
+    Option,
+    "--only-build-deps",
+    "--only-build-dependencies",
+    dest="only_build_dependencies",
+    action="store_true",
+    default=False,
+    help=(
+        "Install only package build dependencies, not the package itself. "
+        "Cannot be used in combination with --no-deps or --only-deps."
     ),
 )
 

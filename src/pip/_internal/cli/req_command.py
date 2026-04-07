@@ -248,6 +248,9 @@ class RequirementCommand(IndexGroupCommand):
             isolated=options.isolated_mode,
         )
         resolver_variant = cls.determine_resolver_variant(options)
+        ignore_dependencies = (
+            options.ignore_dependencies or options.only_build_dependencies
+        )
         # The long import name and duplicated invocation is needed to convince
         # Mypy into correctly typechecking. Otherwise it would complain the
         # "Resolver" class being redefined.
@@ -260,7 +263,7 @@ class RequirementCommand(IndexGroupCommand):
                 wheel_cache=wheel_cache,
                 make_install_req=make_install_req,
                 use_user_site=use_user_site,
-                ignore_dependencies=options.ignore_dependencies,
+                ignore_dependencies=ignore_dependencies,
                 only_dependencies=options.only_dependencies,
                 ignore_installed=ignore_installed,
                 ignore_requires_python=ignore_requires_python,
@@ -276,7 +279,7 @@ class RequirementCommand(IndexGroupCommand):
             wheel_cache=wheel_cache,
             make_install_req=make_install_req,
             use_user_site=use_user_site,
-            ignore_dependencies=options.ignore_dependencies,
+            ignore_dependencies=ignore_dependencies,
             ignore_installed=ignore_installed,
             ignore_requires_python=ignore_requires_python,
             force_reinstall=force_reinstall,
@@ -405,7 +408,6 @@ class RequirementCommand(IndexGroupCommand):
                     "You must give at least one requirement to {name} "
                     '(see "pip help {name}")'.format(**opts)
                 )
-
         return requirements
 
     @staticmethod
